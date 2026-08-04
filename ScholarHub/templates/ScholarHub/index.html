@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>ScholarHub | Your Digital Learning Library</title>
+      <link rel="stylesheet" href="{% static 'ScholarHub/css/site.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="brand"><img src="{% static 'ScholarHub/images/logo-mark.svg' %}" alt="ScholarHub logo"><span class="brand-name">ScholarHub</span></a>
+        </div>
+    </nav>
+
+    <section class="hero{% if background_images %} has-slideshow{% endif %}">
+        {% if background_images %}
+        <div class="hero-slideshow" aria-hidden="true">
+            {% for bg in background_images %}
+            <div class="hero-slide{% if forloop.first %} active{% endif %}" style="background-image: url('{{ bg.image.url }}');"></div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="container hero-grid hero-content">
+            <div>
+                <h1>Learn smarter with the resources you actually need.</h1>
+                <p><strong>ScholarHub</strong> is a digital learning platform that helps university students access textbooks and past examination questions based on their faculty, department, level, and courses. It provides a simple, organized library where students can easily search, read, and download academic resources to support their studies and exam preparation.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="{% url 'register' %}">Get Started</a>
+                    <a class="btn btn-primary" href="{% url 'login' %}?next={% url 'dashboard' %}">Login</a>
+                </div>
+            </div>
+            <div class="hero-panel">
+                <div class="hero-card">
+                    <h3>Ready to access the right resources?</h3>
+                    <p>Use ScholarHub to browse textbooks, past exams, and study guides for your faculty, department, and courses.</p>
+                    <ul class="feature-list">
+                        <li>Curated academic resources</li>
+                        <li>Downloadable past exam papers</li>
+                        <li>Organized by course and level</li>
+                    </ul>
+                    <a class="btn btn-secondary" href="{% url 'register' %}">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        const heroSlides = document.querySelectorAll('.hero-slide');
+        let heroIndex = 0;
+        if (heroSlides.length > 1) {
+            setInterval(() => {
+                heroSlides[heroIndex].classList.remove('active');
+                heroIndex = (heroIndex + 1) % heroSlides.length;
+                heroSlides[heroIndex].classList.add('active');
+            }, 7000);
+        }
+    </script>
+
+    <!-- Removed featured courses, popular textbooks, benefits, and testimonials per request -->
+
+    <section class="container" id="get-started">
+        <div class="cta">
+            <h2>Ready to study smarter?</h2>
+            <p>Join ScholarHub and discover a cleaner, faster way to learn.</p>
+            <a class="btn btn-secondary" href="/">Get Started</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p><img src="{% static 'ScholarHub/images/logo.svg' %}" alt="logo" class="footer-logo">© 2026 ScholarHub. All rights reserved.</p>
+
+        </div>
+    </footer>
+
+    <style>
+        .footer-logo { height: 22px; width: auto; vertical-align: middle; margin-right: 8px; }
+    </style>
+        </div>
+    </footer>
+</body>
+</html>

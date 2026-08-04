@@ -1,0 +1,127 @@
+{% extends 'ScholarHub/base.html' %}
+{% load static %}
+
+{% block title %}My Courses | ScholarHub{% endblock %}
+
+{% block content %}
+<div class="row gx-4 my-courses-page">
+  <div class="col-12">
+    <div class="page-header mb-4">
+      <div>
+        <h2>My Courses</h2>
+        <p class="small-muted">Courses and textbooks assigned to your profile for {{ profile.level }} • {{ profile.semester }}</p>
+      </div>
+      <div class="courses-stats">
+        <div class="courses-stat">
+          <i class="bi bi-book"></i>
+          <div><div class="num">{{ auto_assigned_textbooks|length }}</div><div class="small text-muted">Department</div></div>
+        </div>
+        <div class="courses-stat">
+          <i class="bi bi-star"></i>
+          <div><div class="num">{{ elective_textbooks|length }}</div><div class="small text-muted">Electives</div></div>
+        </div>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Auto-Assigned Courses (by department/level/semester) -->
+    <div class="card sh-elevated mb-4">
+      <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-check2-circle"></i> Your Department Courses</h5>
+          <span class="badge bg-primary">{{ auto_assigned_textbooks|length }}</span>
+        </div>
+        <small class="text-muted">Automatically assigned based on {{ profile.faculty.name }} • {{ profile.department.name }}</small>
+      </div>
+      <div class="card-body">
+        {% if auto_assigned_textbooks %}
+          <div class="row g-3">
+            {% for textbook in auto_assigned_textbooks %}
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="card sh-course-card sh-elevated-hover h-100">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <div>
+                        <h6 class="card-title mb-1">{{ textbook.course.code }}</h6>
+                        <p class="card-text small mb-0">{{ textbook.title }}</p>
+                      </div>
+                      <span class="badge-auto">Auto</span>
+                    </div>
+                    <div class="small text-muted mb-3">
+                      <i class="bi bi-person"></i> {{ textbook.author }}<br>
+                      <i class="bi bi-layers"></i> {{ textbook.level }}
+                    </div>
+                    <p class="card-text small text-muted">{{ textbook.description|truncatewords:15 }}</p>
+                    <div class="mt-3 d-flex gap-2">
+                      <a href="{% url 'textbook_detail' textbook.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                      <a href="{% url 'bookmark_textbook' textbook.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-bookmark"></i></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-info mb-0 no-courses-alert">
+            <i class="bi bi-info-circle"></i> No courses found for your department and level. Please check back soon!
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Elective Courses -->
+    <div class="card sh-elevated">
+      <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-star"></i> Your Elective Courses</h5>
+          <span class="badge bg-warning">{{ elective_textbooks|length }}</span>
+        </div>
+        <small class="text-muted">Courses you manually selected as electives</small>
+      </div>
+      <div class="card-body">
+        {% if elective_textbooks %}
+          <div class="row g-3">
+            {% for textbook in elective_textbooks %}
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="card sh-course-card sh-elevated-hover h-100">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <div>
+                        <h6 class="card-title mb-1">{{ textbook.course.code }}</h6>
+                        <p class="card-text small mb-0">{{ textbook.title }}</p>
+                      </div>
+                      <span class="badge-elective">Elective</span>
+                    </div>
+                    <div class="small text-muted mb-3">
+                      <i class="bi bi-person"></i> {{ textbook.author }}<br>
+                      <i class="bi bi-layers"></i> {{ textbook.level }}
+                    </div>
+                    <p class="card-text small text-muted">{{ textbook.description|truncatewords:15 }}</p>
+                    <div class="mt-3 d-flex gap-2">
+                      <a href="{% url 'textbook_detail' textbook.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                      <a href="{% url 'bookmark_textbook' textbook.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-bookmark"></i></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-info mb-0 no-courses-alert">
+            <i class="bi bi-info-circle"></i> No elective courses selected yet. <a href="{% url 'profile' %}">Add electives to your profile</a>.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

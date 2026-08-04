@@ -1,0 +1,286 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | ScholarHub</title>
+
+    <!-- Only ONE CSS file -->
+    <link rel="stylesheet" href="{% static 'ScholarHub/css/site.css' %}">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body class="register-page">
+
+<main class="page register-page">
+
+    <div class="auth-split">
+
+        <!-- LEFT PANEL -->
+        <section class="auth-hero-brand">
+
+            <img src="{% static 'ScholarHub/images/logo.svg' %}"
+                 alt="ScholarHub Logo"
+                 class="brand-logo">
+
+            <h1 class="brand-title">
+                ScholarHub
+            </h1>
+
+            <p class="brand-tag">
+                Your Digital Library for Textbooks & Past Questions.
+            </p>
+
+            <h2 class="welcome">
+                Welcome Back!
+            </h2>
+
+            <p class="welcome-desc">
+                Sign in to continue accessing your academic resources.
+            </p>
+
+            <div class="icon-bg">
+
+                <i class="bi bi-journal-bookmark-fill icon-pos-1"></i>
+
+                <i class="bi bi-mortarboard-fill icon-pos-2"></i>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- RIGHT PANEL -->
+
+        <section class="card-auth">
+
+            <div class="brand-small">
+
+                <img src="{% static 'ScholarHub/images/logo.svg' %}"
+                     alt="ScholarHub">
+
+            </div>
+
+            <h2 class="auth-title">
+                Create your account
+            </h2>
+
+            <p class="auth-sub">
+                Register to access textbooks, past questions and personalized study resources.
+            </p>
+
+            <form method="POST" id="register-form">
+
+                {% csrf_token %}
+
+                <div class="grid-2">
+
+                    <div>
+
+                        <label for="id_first_name">
+                            First Name
+                        </label>
+
+                        {{ form.first_name }}
+
+                    </div>
+
+                    <div>
+
+                        <label for="id_last_name">
+                            Last Name
+                        </label>
+
+                        {{ form.last_name }}
+
+                    </div>
+
+                </div>
+
+
+                <div class="grid-2">
+
+                    <div>
+
+                        <label for="id_email">
+                            Email
+                        </label>
+
+                        {{ form.email }}
+
+                    </div>
+
+                    <div>
+
+                        <label for="id_matric_number">
+                            Matric Number
+                        </label>
+
+                        {{ form.matric_number }}
+
+                    </div>
+
+                </div>
+
+
+                <div class="grid-2">
+
+                    <div>
+
+                        <label for="id_faculty">
+                            Faculty
+                        </label>
+
+                        {{ form.faculty }}
+
+                    </div>
+
+                    <div>
+
+                        <label for="id_department">
+                            Department
+                        </label>
+
+                        {{ form.department }}
+
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <label for="id_level">
+                        Current Level
+                    </label>
+
+                    {{ form.level }}
+
+                </div>
+
+
+                <div class="grid-2">
+
+                    <div>
+
+                        <label for="id_password1">
+                            Password
+                        </label>
+
+                        {{ form.password1 }}
+
+                    </div>
+
+                    <div>
+
+                        <label for="id_password2">
+                            Confirm Password
+                        </label>
+
+                        {{ form.password2 }}
+
+                    </div>
+
+                </div>
+
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    Register
+
+                </button>
+
+            </form>
+
+            <div class="footer-link">
+
+                Already have an account?
+
+                <a href="{% url 'login' %}">
+                    Login here
+                </a>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<script>
+
+const facultySelect = document.getElementById("id_faculty");
+const departmentSelect = document.getElementById("id_department");
+
+if (facultySelect && departmentSelect){
+
+    function loadDepartments(facultyId){
+
+        departmentSelect.innerHTML =
+            '<option value="">---------</option>';
+
+        if(!facultyId) return;
+
+        fetch(`/api/departments/?faculty_id=${facultyId}`)
+
+        .then(response=>{
+
+            if(!response.ok)
+                throw new Error();
+
+            return response.json();
+
+        })
+
+        .then(data=>{
+
+            data.forEach(department=>{
+
+                let option=document.createElement("option");
+
+                option.value=department.id;
+
+                option.textContent=department.name;
+
+                departmentSelect.appendChild(option);
+
+            });
+
+        })
+
+        .catch(()=>{
+
+            departmentSelect.innerHTML=
+                '<option value="">---------</option>';
+
+        });
+
+    }
+
+    facultySelect.addEventListener("change",function(){
+
+        loadDepartments(this.value);
+
+    });
+
+    if(facultySelect.value){
+
+        loadDepartments(facultySelect.value);
+
+    }
+
+}
+
+</script>
+
+</body>
+
+</html>

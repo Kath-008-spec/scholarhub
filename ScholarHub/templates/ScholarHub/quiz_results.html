@@ -1,0 +1,44 @@
+{% extends 'ScholarHub/base.html' %}
+{% load static %}
+{% block title %}Quiz Results | ScholarHub{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'ScholarHub/css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'ScholarHub/css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'ScholarHub/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card sh-elevated">
+    <div class="card-body">
+      <h2 class="mb-2">Quiz Completed</h2>
+      <p class="text-muted">{{ course.title }}</p>
+      {% if auto_submitted %}
+        <div class="alert alert-warning">The quiz was automatically submitted because the time limit was reached.</div>
+      {% endif %}
+      <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="border rounded p-3"><strong>Score:</strong> {{ attempt.score }}/{{ attempt.total_questions }}</div></div>
+        <div class="col-md-3"><div class="border rounded p-3"><strong>Percentage:</strong> {{ attempt.percentage }}%</div></div>
+        <div class="col-md-3"><div class="border rounded p-3"><strong>Correct:</strong> {{ attempt.correct_answers }}</div></div>
+        <div class="col-md-3"><div class="border rounded p-3"><strong>Wrong:</strong> {{ attempt.wrong_answers }}</div></div>
+      </div>
+      <a href="{% url 'quiz_attempt_history' %}" class="btn btn-outline-secondary">View Attempt History</a>
+    </div>
+  </div>
+
+  <div class="card sh-elevated mt-4">
+    <div class="card-body">
+      <h4 class="mb-3">Review</h4>
+      {% for question, selected_answer, is_correct in student_answers %}
+        <div class="border rounded p-3 mb-3 {% if is_correct %}border-success{% else %}border-danger{% endif %}">
+          <p class="fw-bold mb-2">{{ question.text }}</p>
+          <p class="mb-1"><strong>Your answer:</strong> <span class="{% if is_correct %}text-success{% else %}text-danger{% endif %}">{{ selected_answer|default:'No answer' }}</span></p>
+          <p class="mb-1"><strong>Correct answer:</strong> {{ question.correct_answer }}</p>
+          <p class="mb-0"><strong>Explanation:</strong> {{ question.explanation }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,302 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScholarHub • Dashboard</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- App styles -->
+  <link rel="stylesheet" href="{% static 'ScholarHub/css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'ScholarHub/css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'ScholarHub/css/dashboard.css' %}">
+</head>
+<body class="sh-dashboard">
+
+  <div class="sh-app">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sh-sidebar" id="shSidebar">
+      <div class="sh-sidebar-inner">
+        <div class="sh-brand d-flex align-items-center">
+          <img src="{% static 'ScholarHub/images/logo-mark.svg' %}" alt="ScholarHub" class="sh-logo">
+          <span class="sh-brand-text">ScholarHub</span>
+        </div>
+
+        <nav class="sh-nav mt-4">
+          <ul class="list-unstyled">
+            <li class="sh-nav-item active"><a href="{% url 'dashboard' %}" class="sh-nav-link"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a></li>
+            <li class="sh-nav-item"><a href="{% url 'profile' %}" class="sh-nav-link"><i class="bi bi-person-circle"></i><span>Profile</span></a></li>
+            <li class="sh-nav-item"><a href="{% url 'my_courses' %}" class="sh-nav-link"><i class="bi bi-journal-bookmark"></i><span>My Courses</span></a></li>
+            <li class="sh-nav-item"><a href="{% url 'textbooks' %}" class="sh-nav-link"><i class="bi bi-book"></i><span>Textbooks</span></a></li>
+            <li class="sh-nav-item"><a href="{% url 'past_questions' %}" class="sh-nav-link"><i class="bi bi-file-earmark-text"></i><span>Past Questions</span></a></li>
+            <li class="sh-nav-item"><a href="{% url 'saved_books' %}" class="sh-nav-link"><i class="bi bi-bookmark-heart"></i><span>Saved Books</span></a></li>
+            <li class="sh-nav-item mt-3"><a href="{% url 'logout' %}" class="sh-nav-link text-danger"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a></li>
+          </ul>
+        </nav>
+
+        <div class="sh-sidebar-footer mt-auto">
+          <small class="text-muted">© 2026 ScholarHub</small>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="sh-main">
+
+      <!-- TOP NAV -->
+      <header class="sh-topbar d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+          <button id="shToggleSidebar" class="btn btn-link sh-hamburger d-lg-none"><i class="bi bi-list"></i></button>
+          <form class="sh-search-form" id="shSearchForm">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+              <input id="shSearch" class="form-control sh-search-input border-start-0" placeholder="Search textbooks, courses, or past questions..." aria-label="Search">
+            </div>
+          </form>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          <div class="sh-notification dropdown">
+            <button class="btn btn-link position-relative" id="shNotifyBtn"><i class="bi bi-bell fs-5"></i><span class="badge sh-badge">3</span></button>
+            <div class="dropdown-menu dropdown-menu-end sh-notify-menu" aria-labelledby="shNotifyBtn">
+              <div class="px-3 py-2">
+                <strong>Notifications</strong>
+              </div>
+              <div class="sh-notify-list">
+                <a class="dropdown-item" href="#"><i class="bi bi-bell-fill text-primary me-2"></i>New CSC202 Textbook Uploaded</a>
+                <a class="dropdown-item" href="#"><i class="bi bi-bell-fill text-success me-2"></i>GST Past Questions Added</a>
+                <a class="dropdown-item" href="#"><i class="bi bi-exclamation-circle text-warning me-2"></i>Scheduled Maintenance</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="sh-profile dropdown">
+            <button class="btn btn-link d-flex align-items-center gap-2" id="shProfileBtn">
+              {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="avatar" class="rounded-circle sh-avatar">
+              {% else %}
+                <img src="https://via.placeholder.com/40" alt="avatar" class="rounded-circle sh-avatar">
+              {% endif %}
+              <div class="d-none d-md-block text-start">
+                <div class="fw-bold sh-username">{{ user.get_full_name|default:user.username }}</div>
+                <div class="small text-muted sh-dept">{{ profile.department.name|default:'Department' }}</div>
+              </div>
+              <i class="bi bi-chevron-down d-none d-md-inline"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="shProfileBtn">
+              <li><a class="dropdown-item" href="#">Profile</a></li>
+              <li><a class="dropdown-item" href="#">Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT GRID -->
+      <div class="sh-content container-fluid">
+        <div class="row gx-4">
+          <!-- Main column -->
+          <div class="col-12 col-xl-8">
+
+            <!-- HERO CARD -->
+            <section class="sh-hero card sh-elevated mb-4">
+              <div class="row g-0 align-items-center">
+                <div class="col-lg-7 p-4">
+                  <h2 class="mb-2">Welcome back, {{ user.first_name|default:user.username }} 👋</h2>
+                  <p class="lead text-muted">You are viewing resources for {{ profile.department.name|default:'your department' }} at {{ profile.level }} level.</p>
+                  <div class="mt-3">
+                    <a href="#" class="btn btn-outline-light btn-rounded me-2">My Courses</a>
+                    <a href="#" class="btn btn-light btn-rounded">Browse Textbooks</a>
+                  </div>
+                </div>
+                <div class="col-lg-5 sh-hero-illustration p-3 text-center">
+                  <!-- Illustration placeholder -->
+                  <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" class="img-fluid sh-hero-illustration-img" role="img" aria-label="Books illustration">
+                    <rect x="16" y="72" width="176" height="136" rx="22" fill="rgba(255,255,255,0.14)"/>
+                    <rect x="34" y="86" width="140" height="108" rx="16" fill="#ffffff"/>
+                    <path d="M44 114h108M44 136h108M44 158h108" stroke="#1E3A8A" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M182 58h86v130h-86z" fill="#2BC1B6" opacity="0.14"/>
+                    <path d="M190 66h70v114h-70z" fill="#ffffff"/>
+                    <path d="M200 86h50M200 108h50M200 130h50" stroke="#1E3A8A" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="248" cy="40" r="24" fill="rgba(212,160,23,0.18)"/>
+                    <circle cx="264" cy="28" r="10" fill="#D4A017" opacity="0.9"/>
+                  </svg>
+                </div>
+              </div>
+            </section>
+
+            <!-- STATS -->
+            <section class="sh-stats row g-3 mb-4">
+              <div class="col-6 col-md-3">
+                <article class="card sh-stat card-body text-center sh-elevated-hover">
+                  <i class="bi bi-book fs-2 text-primary mb-2"></i>
+                  <h3 class="mb-0">{{ recent_textbooks|length }}</h3>
+                  <small class="text-muted">Visible Textbooks</small>
+                </article>
+              </div>
+              <div class="col-6 col-md-3">
+                <article class="card sh-stat card-body text-center sh-elevated-hover">
+                  <i class="bi bi-file-earmark-text fs-2 text-primary mb-2"></i>
+                  <h3 class="mb-0">{{ recent_past_questions|length }}</h3>
+                  <small class="text-muted">Visible Past Questions</small>
+                </article>
+              </div>
+              <div class="col-6 col-md-3">
+                <article class="card sh-stat card-body text-center sh-elevated-hover">
+                  <i class="bi bi-heart fs-2 text-primary mb-2"></i>
+                  <h3 class="mb-0">{{ saved_textbooks|length }}</h3>
+                  <small class="text-muted">Saved Books</small>
+                </article>
+              </div>
+              <div class="col-6 col-md-3">
+                <article class="card sh-stat card-body text-center sh-elevated-hover">
+                  <i class="bi bi-download fs-2 text-primary mb-2"></i>
+                  <h3 class="mb-0">{{ saved_past_questions|length }}</h3>
+                  <small class="text-muted">Saved Past Questions</small>
+                </article>
+              </div>
+            </section>
+
+            <!-- Continue Reading -->
+            <section class="sh-section mb-4">
+              <h4 class="mb-3">Continue Reading</h4>
+              <div class="row g-3">
+                {% for textbook in recent_textbooks|slice:':2' %}
+                <div class="col-12 col-md-6">
+                  <div class="card sh-book-card d-flex gap-3 p-3 align-items-center sh-elevated-hover">
+                    <div class="flex-grow-1">
+                      <h5 class="mb-1">{{ textbook.title }}</h5>
+                      <div class="small text-muted">{{ textbook.author }} • {{ textbook.course.code }}</div>
+                      <div class="mt-2 d-flex gap-2">
+                        <a href="{% url 'textbook_detail' textbook.pk %}" class="btn btn-outline-primary btn-sm">Read</a>
+                        <a href="{% url 'bookmark_textbook' textbook.pk %}" class="btn btn-outline-secondary btn-sm">Save</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% empty %}
+                <div class="col-12"><div class="alert alert-info mb-0">No textbooks are available yet for your profile.</div></div>
+                {% endfor %}
+              </div>
+            </section>
+
+            <!-- Latest Textbooks -->
+            <section class="sh-section mb-4">
+              <h4 class="mb-3">Recent Textbooks</h4>
+              <div class="row g-3">
+                {% for textbook in recent_textbooks %}
+                <div class="col-12 col-sm-6 col-md-4">
+                  <div class="card sh-resource-card sh-elevated-hover">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ textbook.title }}</h5>
+                      <p class="card-text small text-muted mb-2">{{ textbook.author }} • {{ textbook.course.code }} • {{ textbook.department.name }} • {{ textbook.level }} • {{ textbook.semester }}</p>
+                      <div class="d-flex gap-2">
+                        <a href="{% url 'textbook_detail' textbook.pk %}" class="btn btn-sm btn-outline-primary">Read</a>
+                        <a href="{% url 'download_textbook' textbook.pk %}" class="btn btn-sm btn-outline-secondary">Download</a>
+                        <a href="{% url 'bookmark_textbook' textbook.pk %}" class="btn btn-sm btn-outline-warning"><i class="bi bi-bookmark"></i></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% empty %}
+                <div class="col-12"><div class="alert alert-info mb-0">No textbooks are available for your current faculty, department, level, or electives.</div></div>
+                {% endfor %}
+              </div>
+            </section>
+
+            <!-- Recent Past Questions -->
+            <section class="sh-section mb-5">
+              <h4 class="mb-3">Recent Past Questions</h4>
+              <div class="row g-3">
+                {% for question in recent_past_questions %}
+                <div class="col-12 col-md-6">
+                  <div class="card sh-pastq-card p-3 sh-elevated-hover">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div>
+                        <h6 class="mb-1">{{ question.course.code }} - {{ question.course.title }}</h6>
+                        <div class="small text-muted">{{ question.department.name }} • {{ question.level }} • {{ question.academic_session }}</div>
+                      </div>
+                      <div class="d-flex gap-2">
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'past_question_detail' question.pk %}">View</a>
+                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'download_past_question' question.pk %}">Download</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% empty %}
+                <div class="col-12"><div class="alert alert-info mb-0">No past questions are available for your current profile.</div></div>
+                {% endfor %}
+              </div>
+            </section>
+
+          </div>
+
+          <!-- RIGHT SIDEBAR -->
+          <aside class="col-12 col-xl-4">
+            <div class="sh-rightside sticky-top sh-rightside-sticky">
+
+              <div class="card mb-3 sh-elevated-hover">
+                <div class="card-body">
+                  <h6 class="mb-2">Announcements</h6>
+                  <ul class="list-unstyled mb-0">
+                    {% for announcement in announcements %}
+                    <li class="mb-2"><i class="bi bi-megaphone-fill text-primary me-2"></i>{{ announcement.title }}</li>
+                    {% empty %}
+                    <li class="mb-2">No announcements yet.</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+
+              <div class="card mb-3 sh-elevated-hover">
+                <div class="card-body">
+                  <h6 class="mb-2">My Courses</h6>
+                  <div class="d-flex flex-column gap-2">
+                    {% for course in current_courses %}
+                    <span class="btn btn-sm btn-outline-primary text-start">{{ course.title }}</span>
+                    {% empty %}
+                    <span class="text-muted">No courses assigned yet.</span>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="card mb-3 sh-elevated-hover">
+                <div class="card-body">
+                  <h6 class="mb-2">Quick Links</h6>
+                  <div class="d-flex flex-column gap-2">
+                    <a href="{% url 'textbooks' %}" class="sh-quick-link"><i class="bi bi-book"></i><span>Browse Textbooks</span></a>
+                    <a href="{% url 'past_questions' %}" class="sh-quick-link"><i class="bi bi-file-earmark-text"></i><span>Browse Past Questions</span></a>
+                    <a href="{% url 'saved_books' %}" class="sh-quick-link"><i class="bi bi-download"></i><span>Saved Downloads</span></a>
+                    <a href="{% url 'saved_books' %}" class="sh-quick-link"><i class="bi bi-bookmark-heart"></i><span>Saved Books</span></a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </aside>
+
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="sh-footer text-center py-4 mt-5">
+        <small class="text-muted">© 2026 ScholarHub. Helping students learn smarter.</small>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- Bootstrap JS bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- App JS -->
+  <script src="{% static 'ScholarHub/js/dashboard.js' %}"></script>
+</body>
+</html>

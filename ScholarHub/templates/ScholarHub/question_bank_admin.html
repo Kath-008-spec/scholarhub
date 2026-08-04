@@ -1,0 +1,126 @@
+{% extends 'ScholarHub/base.html' %}
+{% block title %}Question Bank | ScholarHub{% endblock %}
+
+{% block content %}
+<div class="row gx-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">Question Bank</h2>
+        <p class="text-muted">Create and manage CBT questions for your courses.</p>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="card sh-elevated mb-4">
+      <div class="card-body">
+        <form method="get" class="row g-3">
+          <div class="col-md-2">
+            {{ filter_form.faculty.label_tag }}
+            {{ filter_form.faculty }}
+          </div>
+          <div class="col-md-2">
+            {{ filter_form.department.label_tag }}
+            {{ filter_form.department }}
+          </div>
+          <div class="col-md-2">
+            {{ filter_form.level.label_tag }}
+            {{ filter_form.level }}
+          </div>
+          <div class="col-md-2">
+            {{ filter_form.semester.label_tag }}
+            {{ filter_form.semester }}
+          </div>
+          <div class="col-md-2">
+            {{ filter_form.course.label_tag }}
+            {{ filter_form.course }}
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Search</label>
+            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" class="form-control" placeholder="Search text...">
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{% url 'question_bank_admin' %}" class="btn btn-outline-secondary">Reset</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card sh-elevated mb-4">
+      <div class="card-body">
+        <h5 class="mb-3">{% if editing_question %}Edit Question{% else %}Add Question{% endif %}</h5>
+        <form method="post">
+          {% csrf_token %}
+          {% if question_form.non_field_errors %}
+            <div class="alert alert-danger">{{ question_form.non_field_errors }}</div>
+          {% endif %}
+          <div class="row g-3">
+            <div class="col-md-3">{{ question_form.faculty.label_tag }} {{ question_form.faculty }}</div>
+            <div class="col-md-3">{{ question_form.department.label_tag }} {{ question_form.department }}</div>
+            <div class="col-md-3">{{ question_form.level.label_tag }} {{ question_form.level }}</div>
+            <div class="col-md-3">{{ question_form.semester.label_tag }} {{ question_form.semester }}</div>
+            <div class="col-md-4">{{ question_form.course.label_tag }} {{ question_form.course }}</div>
+            <div class="col-md-2">{{ question_form.quiz_time_limit.label_tag }} {{ question_form.quiz_time_limit }}</div>
+            <div class="col-12">{{ question_form.text.label_tag }} {{ question_form.text }}</div>
+            <div class="col-md-3">{{ question_form.option_a.label_tag }} {{ question_form.option_a }}</div>
+            <div class="col-md-3">{{ question_form.option_b.label_tag }} {{ question_form.option_b }}</div>
+            <div class="col-md-3">{{ question_form.option_c.label_tag }} {{ question_form.option_c }}</div>
+            <div class="col-md-3">{{ question_form.option_d.label_tag }} {{ question_form.option_d }}</div>
+            <div class="col-md-3">{{ question_form.correct_answer.label_tag }} {{ question_form.correct_answer }}</div>
+            <div class="col-12">{{ question_form.explanation.label_tag }} {{ question_form.explanation }}</div>
+            <div class="col-12"><button type="submit" class="btn btn-primary">Save Question</button>{% if editing_question %}<a href="{% url 'question_bank_admin' %}" class="btn btn-outline-secondary ms-2">Cancel</a>{% endif %}</div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card sh-elevated">
+      <div class="card-body">
+        <h5 class="mb-3">Existing Questions</h5>
+        {% if questions %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Question</th>
+                  <th>Correct</th>
+                  <th>Explanation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for question in questions %}
+                  <tr>
+                    <td>{{ question.course.code }}</td>
+                    <td>{{ question.text }}</td>
+                    <td>{{ question.correct_answer }}</td>
+                    <td>{{ question.explanation|truncatechars:80 }}</td>
+                    <td>
+                      <a href="{% url 'question_bank_admin' %}?edit_question={{ question.pk }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                      <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" name="delete_question" value="{{ question.pk }}" class="btn btn-sm btn-outline-danger">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="alert alert-info">No questions found for the selected filters.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

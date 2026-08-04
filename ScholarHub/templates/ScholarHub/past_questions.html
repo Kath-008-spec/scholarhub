@@ -1,0 +1,151 @@
+{% extends 'ScholarHub/base.html' %}
+{% load static %}
+
+{% block title %}Past Questions | ScholarHub{% endblock %}
+
+{% block content %}
+<div class="row gx-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">Past Questions</h2>
+        <p class="text-muted">Previous examination papers for your courses</p>
+      </div>
+      <div>
+        <div class="input-group" style="width: 300px;">
+          <input type="text" class="form-control" placeholder="Search by course..." id="questionsSearch">
+          <button class="btn btn-outline-primary" type="button"><i class="bi bi-search"></i></button>
+        </div>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Filter Section -->
+    <div class="card sh-elevated mb-4 sh-filter-card">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-2">
+            <label class="form-label"><i class="bi bi-funnel"></i> Course</label>
+            <select class="form-select form-select-sm">
+              <option>All Courses</option>
+              <option>CSC201</option>
+              <option>PHY202</option>
+              <option>MAT301</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label"><i class="bi bi-bookmark"></i> Level</label>
+            <select class="form-select form-select-sm">
+              <option>All Levels</option>
+              <option>100 Level</option>
+              <option>200 Level</option>
+              <option>300 Level</option>
+              <option>400 Level</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label"><i class="bi bi-calendar"></i> Semester</label>
+            <select class="form-select form-select-sm">
+              <option>All Semesters</option>
+              <option>First Semester</option>
+              <option>Second Semester</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label"><i class="bi bi-hourglass"></i> Session</label>
+            <select class="form-select form-select-sm">
+              <option>All Sessions</option>
+              <option>2023/2024</option>
+              <option>2022/2023</option>
+              <option>2021/2022</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">&nbsp;</label>
+            <button class="btn btn-outline-secondary w-100 btn-sm">Reset Filters</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Past Questions List -->
+    {% if all_past_questions %}
+      <div class="row g-3">
+        {% for question in all_past_questions %}
+          <div class="col-12">
+            <div class="card sh-pastq-list-card sh-elevated-hover">
+              <div class="card-body">
+                <div class="row align-items-center">
+                  <div class="col-md-6">
+                    <h5 class="card-title mb-2">
+                      <i class="bi bi-file-earmark-pdf text-danger"></i> {{ question.course.code }}
+                    </h5>
+                    <p class="card-text mb-2">
+                      <strong>{{ question.course.title }}</strong>
+                    </p>
+                    <div class="small text-muted">
+                      <span class="badge bg-light text-dark me-2">
+                        <i class="bi bi-building"></i> {{ question.department.name }}
+                      </span>
+                      <span class="badge bg-light text-dark me-2">
+                        <i class="bi bi-layers"></i> {{ question.level }}
+                      </span>
+                      <span class="badge bg-light text-dark me-2">
+                        <i class="bi bi-calendar-event"></i> {{ question.academic_session }}
+                      </span>
+                      <span class="badge bg-light text-dark">
+                        <i class="bi bi-calendar"></i> {{ question.semester }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="text-muted small mb-3">{{ question.description|truncatewords:20 }}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                      <a href="{% url 'start_quiz' question.course.pk %}" class="btn btn-sm btn-success">
+                        <i class="bi bi-play-circle"></i> CBT
+                      </a>
+                      <a href="{% url 'past_question_detail' question.pk %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-eye"></i> View
+                      </a>
+                      <a href="{% url 'download_past_question' question.pk %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-download"></i> Download
+                      </a>
+                      <a href="{% url 'bookmark_past_question' question.pk %}" class="btn btn-sm btn-outline-warning">
+                        <i class="bi bi-bookmark"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+          <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+      </nav>
+    {% else %}
+      <div class="alert alert-info" role="alert">
+        <i class="bi bi-info-circle"></i> No past questions available yet. Check back soon!
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

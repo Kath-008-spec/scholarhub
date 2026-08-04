@@ -1,0 +1,152 @@
+         {% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ScholarHub{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- App styles -->
+  <link rel="stylesheet" href="{% static 'ScholarHub/css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'ScholarHub/css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'ScholarHub/css/dashboard.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="sh-dashboard theme-saas-light">
+
+  <div class="sh-app">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sh-sidebar" id="shSidebar">
+      <div class="sh-sidebar-inner">
+        <div class="sh-brand d-flex align-items-center">
+          <img src="{% static 'ScholarHub/images/logo-mark.svg' %}" alt="ScholarHub" class="sh-logo">
+          <span class="sh-brand-text">ScholarHub</span>
+        </div>
+
+        <nav class="sh-nav mt-4">
+          <ul class="list-unstyled">
+            <li class="sh-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+              <a href="{% url 'dashboard' %}" class="sh-nav-link">
+                <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+              </a>
+            </li>
+            <li class="sh-nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+              <a href="{% url 'profile' %}" class="sh-nav-link">
+                <i class="bi bi-person-circle"></i><span>Profile</span>
+              </a>
+            </li>
+            <li class="sh-nav-item {% if request.resolver_match.url_name == 'my_courses' %}active{% endif %}">
+              <a href="{% url 'my_courses' %}" class="sh-nav-link">
+                <i class="bi bi-journal-bookmark"></i><span>My Courses</span>
+              </a>
+            </li>
+            <li class="sh-nav-item {% if request.resolver_match.url_name == 'textbooks' %}active{% endif %}">
+              <a href="{% url 'textbooks' %}" class="sh-nav-link">
+                <i class="bi bi-book"></i><span>Textbooks</span>
+              </a>
+            </li>
+            <li class="sh-nav-item {% if request.resolver_match.url_name == 'past_questions' %}active{% endif %}">
+              <a href="{% url 'past_questions' %}" class="sh-nav-link">
+                <i class="bi bi-file-earmark-text"></i><span>Past Questions</span>
+              </a>
+            </li>
+            <li class="sh-nav-item {% if request.resolver_match.url_name == 'saved_books' %}active{% endif %}">
+              <a href="{% url 'saved_books' %}" class="sh-nav-link">
+                <i class="bi bi-bookmark-heart"></i><span>Saved Books</span>
+              </a>
+            </li>
+            <li class="sh-nav-item {% if request.resolver_match.url_name == 'quiz_attempt_history' %}active{% endif %}">
+              <a href="{% url 'quiz_attempt_history' %}" class="sh-nav-link">
+                <i class="bi bi-journal-check"></i><span>Quiz History</span>
+              </a>
+            </li>
+            {% if user.is_staff %}
+            <li class="sh-nav-item {% if request.resolver_match.url_name == 'question_bank_admin' %}active{% endif %}">
+              <a href="{% url 'question_bank_admin' %}" class="sh-nav-link">
+                <i class="bi bi-puzzle"></i><span>Question Bank</span>
+              </a>
+            </li>
+            {% endif %}
+            <li class="sh-nav-item sh-logout-item mt-3">
+              <a href="{% url 'logout' %}" class="sh-nav-link logout-link">
+                <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="sh-sidebar-footer mt-auto">
+          <small class="text-muted">© 2026 ScholarHub</small>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="sh-main">
+
+      <!-- TOP NAV -->
+      <header class="sh-topbar d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+          <button id="shToggleSidebar" class="btn btn-link sh-hamburger d-lg-none"><i class="bi bi-list"></i></button>
+          <form class="sh-search-form" id="shSearchForm">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+              <input id="shSearch" class="form-control sh-search-input border-start-0" placeholder="Search textbooks, courses, or past questions..." aria-label="Search">
+            </div>
+          </form>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          <div class="sh-notification dropdown">
+            <button class="btn btn-link position-relative" id="shNotifyBtn"><i class="bi bi-bell fs-5"></i><span class="badge sh-badge">3</span></button>
+            <div class="dropdown-menu dropdown-menu-end sh-notify-menu" aria-labelledby="shNotifyBtn">
+              <div class="px-3 py-2">
+                <strong>Notifications</strong>
+              </div>
+              <div class="sh-notify-list">
+                <a class="dropdown-item" href="#"><i class="bi bi-bell-fill text-primary me-2"></i>New CSC202 Textbook Uploaded</a>
+                <a class="dropdown-item" href="#"><i class="bi bi-bell-fill text-success me-2"></i>GST Past Questions Added</a>
+                <a class="dropdown-item" href="#"><i class="bi bi-exclamation-circle text-warning me-2"></i>Scheduled Maintenance</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="sh-profile dropdown">
+            <button class="btn btn-link d-flex align-items-center gap-2" id="shProfileBtn">
+              <img src="https://via.placeholder.com/40" alt="avatar" class="rounded-circle sh-avatar">
+              <div class="d-none d-md-block text-start">
+                <div class="fw-bold sh-username">{{ user.get_full_name|default:user.username }}</div>
+                <div class="small text-muted sh-dept">{{ profile.department.name|default:'Department' }}</div>
+              </div>
+              <i class="bi bi-chevron-down d-none d-md-inline"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="shProfileBtn">
+              <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT GRID -->
+      <div class="sh-content container-fluid">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- App scripts -->
+  <script src="{% static 'ScholarHub/js/dashboard.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

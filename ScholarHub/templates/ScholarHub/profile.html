@@ -1,0 +1,245 @@
+{% extends 'ScholarHub/base.html' %}
+{% load static %}
+
+{% block title %}Profile | ScholarHub{% endblock %}
+
+{% block content %}
+<div class="row gx-4">
+  <!-- Main Form Column -->
+  <div class="col-12 col-lg-7">
+    <div class="card sh-elevated">
+      <div class="card-header bg-light border-0 pt-4 pb-0">
+        <h5 class="mb-2"><i class="bi bi-pencil-square"></i> Edit your profile</h5>
+        <p class="text-muted small mb-0">You can update your contact details, level, semester, and elective courses here.</p>
+      </div>
+      <div class="card-body pt-4">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="bi bi-check-circle"></i> {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <!-- Profile Picture Section -->
+          <div class="mb-4">
+            <label class="form-label fw-bold"><i class="bi bi-image"></i> Profile Picture</label>
+            <div class="input-group">
+              {{ form.profile_picture }}
+            </div>
+            <small class="text-muted">JPG, PNG or GIF. Max size 5MB.</small>
+          </div>
+
+          <hr>
+
+          <!-- Contact Information Section -->
+          <div class="mb-4">
+            <h6 class="mb-3 fw-bold"><i class="bi bi-telephone"></i> Contact Information</h6>
+            <div class="mb-3">
+              <label class="form-label">{{ form.phone_number.label }}</label>
+              {{ form.phone_number }}
+              {% if form.phone_number.errors %}
+                <div class="invalid-feedback d-block">{{ form.phone_number.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Academic Information Section -->
+          <div class="mb-4">
+            <h6 class="mb-3 fw-bold"><i class="bi bi-building"></i> Academic Information</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">{{ form.level.label }}</label>
+                {{ form.level }}
+                {% if form.level.errors %}
+                  <div class="invalid-feedback d-block">{{ form.level.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ form.semester.label }}</label>
+                {{ form.semester }}
+                {% if form.semester.errors %}
+                  <div class="invalid-feedback d-block">{{ form.semester.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Elective Courses Section -->
+          <div class="mb-4">
+            <h6 class="mb-3 fw-bold"><i class="bi bi-journal-bookmark"></i> Elective Courses</h6>
+            <p class="text-muted small mb-3">Select courses you want to take as electives. You can choose from all available courses across departments.</p>
+            <div class="sh-checkbox-group" style="max-height: 400px; overflow-y: auto;">
+              {{ form.elective_courses }}
+            </div>
+            {% if form.elective_courses.errors %}
+              <div class="invalid-feedback d-block">{{ form.elective_courses.errors }}</div>
+            {% endif %}
+          </div>
+
+          <hr>
+
+          <!-- Change Password Section -->
+          <div class="mb-4">
+            <h6 class="mb-3 fw-bold"><i class="bi bi-lock"></i> Change Password (Optional)</h6>
+            <p class="text-muted small mb-3">Leave blank if you don't want to change your password.</p>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">{{ form.password1.label }}</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                  <div class="invalid-feedback d-block">{{ form.password1.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ form.password2.label }}</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                  <div class="invalid-feedback d-block">{{ form.password2.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary" type="submit">
+              <i class="bi bi-check-circle"></i> Save Changes
+            </button>
+            <a class="btn btn-outline-secondary" href="{% url 'dashboard' %}">
+              <i class="bi bi-arrow-left"></i> Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Sidebar with Profile Info -->
+  <div class="col-12 col-lg-5">
+    <!-- Profile Card Header -->
+    <div class="card sh-elevated mb-4 border-0">
+      <div class="card-body p-0 overflow-hidden position-relative" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); height: 150px; border-radius: 12px 12px 0 0;">
+      </div>
+      <div class="card-body pt-0">
+        <div class="text-center">
+          <div class="mb-3 mt-n4">
+            {% if profile.profile_picture %}
+              <img src="{{ profile.profile_picture.url }}" alt="avatar" class="img-fluid rounded-circle border-4 border-white shadow" style="width: 120px; height: 120px; object-fit: cover;">
+            {% else %}
+              <img src="https://via.placeholder.com/120" alt="avatar" class="img-fluid rounded-circle border-4 border-white shadow" style="width: 120px; height: 120px; object-fit: cover;">
+            {% endif %}
+          </div>
+          <h5 class="mb-1">{{ user.get_full_name|default:user.username }}</h5>
+          <p class="text-muted small mb-0">{{ profile.department.name|default:'Department' }} • {{ profile.faculty.name|default:'Faculty' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Information Card -->
+    <div class="card sh-elevated mb-3">
+      <div class="card-header bg-light border-0">
+        <h6 class="mb-0"><i class="bi bi-info-circle"></i> Profile Information</h6>
+      </div>
+      <div class="card-body">
+        <div class="mb-3 pb-3 border-bottom">
+          <label class="form-label small text-muted mb-1">Username</label>
+          <p class="mb-0 fw-500">{{ user.username }}</p>
+        </div>
+        <div class="mb-3 pb-3 border-bottom">
+          <label class="form-label small text-muted mb-1">Email</label>
+          <p class="mb-0 fw-500">{{ user.email }}</p>
+        </div>
+        <div class="mb-3 pb-3 border-bottom">
+          <label class="form-label small text-muted mb-1">Matric Number</label>
+          <p class="mb-0 fw-500">{{ profile.matric_number|default:"Not set" }}</p>
+        </div>
+        <div class="mb-3 pb-3 border-bottom">
+          <label class="form-label small text-muted mb-1">Level</label>
+          <p class="mb-0 fw-500"><span class="badge bg-primary">{{ profile.level }}</span></p>
+        </div>
+        <div class="mb-3 pb-3 border-bottom">
+          <label class="form-label small text-muted mb-1">Semester</label>
+          <p class="mb-0 fw-500"><span class="badge bg-info">{{ profile.semester }}</span></p>
+        </div>
+        <div>
+          <label class="form-label small text-muted mb-1">Account Created</label>
+          <p class="mb-0 fw-500">{{ user.date_joined|date:"F d, Y" }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enrolled Courses Card -->
+    <div class="card sh-elevated mb-3">
+      <div class="card-header bg-light border-0">
+        <h6 class="mb-0"><i class="bi bi-journal-bookmark"></i> Enrolled Courses</h6>
+      </div>
+      <div class="card-body">
+        {% if profile.courses.all %}
+          <div class="d-flex flex-column gap-2">
+            {% for course in profile.courses.all %}
+              <div class="alert alert-light mb-0 py-2 px-3">
+                <strong>{{ course.code }}</strong><br>
+                <small class="text-muted">{{ course.title }}</small>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted small mb-0"><i class="bi bi-info-circle"></i> No courses assigned yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="card sh-elevated border-danger">
+      <div class="card-header bg-light border-danger">
+        <h6 class="mb-0 text-danger"><i class="bi bi-exclamation-triangle"></i> Danger Zone</h6>
+      </div>
+      <div class="card-body">
+        <p class="small text-muted mb-3">Permanently delete your account and all associated data. This action cannot be undone.</p>
+        <button class="btn btn-outline-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+          <i class="bi bi-trash"></i> Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header border-danger">
+        <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Delete Account</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Are you sure you want to delete your account?</strong></p>
+        <p class="text-muted">This action cannot be undone. All your data including:</p>
+        <ul class="text-muted small">
+          <li>Saved books and past questions</li>
+          <li>Your courses and preferences</li>
+          <li>Profile information</li>
+        </ul>
+        <p class="text-muted mb-0">will be permanently deleted.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger">Delete My Account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- checkbox styles moved to site.css -->
+{% endblock %}

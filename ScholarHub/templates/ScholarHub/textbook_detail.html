@@ -1,0 +1,63 @@
+{% extends 'ScholarHub/base.html' %}
+{% load static %}
+{% block title %}{{ resource.title }} | ScholarHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ScholarHub/css/site.css' %}">
+<link rel="stylesheet" href="{% static 'ScholarHub/css/theme.css' %}">
+<link rel="stylesheet" href="{% static 'ScholarHub/css/dashboard.css' %}">
+<style>
+  .note-reader-shell {
+    border: 1px solid var(--border);
+    border-radius: 0.95rem;
+    background: var(--surface-strong);
+    padding: 1rem;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+  }
+  .note-body {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    padding: 1.25rem;
+    white-space: pre-wrap;
+    line-height: 1.7;
+    font-size: 1rem;
+    min-height: 280px;
+  }
+  .note-empty {
+    color: var(--muted);
+    font-style: italic;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card sh-elevated">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+        <div>
+          <h2 class="mb-1">{{ resource.title }}</h2>
+          <p class="text-muted mb-0">{{ resource.author }} • {{ resource.course.title }} • {{ resource.department.name }}</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a class="btn btn-primary" href="{% url 'download_textbook' resource.pk %}">Download Note</a>
+          <a class="btn btn-outline-secondary" href="{% url 'bookmark_textbook' resource.pk %}">Save for later</a>
+        </div>
+      </div>
+
+      {% if resource.description %}
+      <p class="mb-4">{{ resource.description }}</p>
+      {% endif %}
+
+      <div class="note-reader-shell">
+        {% if resource.content %}
+        <div class="note-body">{{ resource.content }}</div>
+        {% else %}
+        <div class="note-empty">No note content has been added for this textbook yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

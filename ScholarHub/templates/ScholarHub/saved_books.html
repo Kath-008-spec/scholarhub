@@ -1,0 +1,142 @@
+{% extends 'ScholarHub/base.html' %}
+{% load static %}
+
+{% block title %}Saved Books | ScholarHub{% endblock %}
+
+{% block content %}
+<div class="row gx-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">Saved Books & Questions</h2>
+        <p class="text-muted">Your bookmarked textbooks and past questions</p>
+      </div>
+      <div>
+        <span class="badge bg-primary">{{ saved_textbooks|length|add:saved_past_questions|length }} Items</span>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Tabs for Textbooks and Past Questions -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="saved-textbooks-tab" data-bs-toggle="tab" data-bs-target="#saved-textbooks" type="button" role="tab">
+          <i class="bi bi-book"></i> Saved Textbooks <span class="badge bg-primary ms-2">{{ saved_textbooks|length }}</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="saved-questions-tab" data-bs-toggle="tab" data-bs-target="#saved-questions" type="button" role="tab">
+          <i class="bi bi-file-earmark-text"></i> Saved Past Questions <span class="badge bg-primary ms-2">{{ saved_past_questions|length }}</span>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Saved Textbooks Tab -->
+      <div class="tab-pane fade show active" id="saved-textbooks" role="tabpanel">
+        {% if saved_textbooks %}
+          <div class="row g-4">
+            {% for textbook in saved_textbooks %}
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="card sh-saved-book-card sh-elevated-hover h-100">
+                  <div class="sh-book-cover bg-light p-3 text-center position-relative" style="height: 200px; overflow: hidden;">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                      <i class="bi bi-journal-text fs-1 text-muted"></i>
+                    </div>
+                    <a href="{% url 'bookmark_textbook' textbook.pk %}" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" title="Remove from saved">
+                      <i class="bi bi-x"></i>
+                    </a>
+                  </div>
+                  <div class="card-body d-flex flex-column">
+                    <h6 class="card-title mb-1">{{ textbook.title }}</h6>
+                    <p class="card-text small text-muted mb-2">by {{ textbook.author }}</p>
+                    <div class="small text-muted mb-3">
+                      <div><i class="bi bi-tag"></i> {{ textbook.course.code }}</div>
+                      <div><i class="bi bi-layers"></i> {{ textbook.level }}</div>
+                    </div>
+                    <div class="mt-auto d-flex gap-2">
+                      <a href="{% url 'textbook_detail' textbook.pk %}" class="btn btn-sm btn-primary flex-grow-1">
+                        <i class="bi bi-eye"></i> Read
+                      </a>
+                      <a href="{% url 'download_textbook' textbook.pk %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-download"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-info" role="alert">
+            <i class="bi bi-bookmark"></i> No saved textbooks yet. <a href="{% url 'textbooks' %}">Browse textbooks</a> and save your favorites!
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Saved Past Questions Tab -->
+      <div class="tab-pane fade" id="saved-questions" role="tabpanel">
+        {% if saved_past_questions %}
+          <div class="row g-3">
+            {% for question in saved_past_questions %}
+              <div class="col-12">
+                <div class="card sh-saved-pastq-card sh-elevated-hover">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-md-6">
+                        <h5 class="card-title mb-2">
+                          <i class="bi bi-file-earmark-pdf text-danger"></i> {{ question.course.code }}
+                        </h5>
+                        <p class="card-text mb-2">
+                          <strong>{{ question.course.title }}</strong>
+                        </p>
+                        <div class="small text-muted">
+                          <span class="badge bg-light text-dark me-2">
+                            <i class="bi bi-layers"></i> {{ question.level }}
+                          </span>
+                          <span class="badge bg-light text-dark me-2">
+                            <i class="bi bi-calendar-event"></i> {{ question.academic_session }}
+                          </span>
+                          <span class="badge bg-light text-dark">
+                            <i class="bi bi-calendar"></i> {{ question.semester }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="d-flex gap-2 justify-content-end">
+                          <a href="{% url 'past_question_detail' question.pk %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-eye"></i> View
+                          </a>
+                          <a href="{% url 'download_past_question' question.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-download"></i> Download
+                          </a>
+                          <a href="{% url 'bookmark_past_question' question.pk %}" class="btn btn-sm btn-danger">
+                            <i class="bi bi-x"></i> Remove
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-info" role="alert">
+            <i class="bi bi-bookmark"></i> No saved past questions yet. <a href="{% url 'past_questions' %}">Browse past questions</a> and save them!
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
