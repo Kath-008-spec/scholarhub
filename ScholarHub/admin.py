@@ -49,7 +49,7 @@ class TextbookAdmin(admin.ModelAdmin):
     list_filter = ('faculty', 'department', 'level', 'semester', 'is_active')
     search_fields = ('title', 'author', 'course__code')
     fieldsets = (
-        ('Basic details', {'fields': ('title', 'author', 'faculty', 'department', 'course', 'level', 'semester', 'edition', 'description', 'content', 'is_active')}),
+        ('Basic details', {'fields': ('title', 'author', 'faculty', 'department', 'course', 'level', 'semester', 'edition', 'cover_image', 'description', 'content', 'is_active')}),
     )
 
 

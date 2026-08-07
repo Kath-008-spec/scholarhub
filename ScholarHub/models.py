@@ -99,6 +99,7 @@ class Textbook(models.Model):
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
     semester = models.CharField(max_length=30, choices=SEMESTER_CHOICES)
     edition = models.CharField(max_length=100, blank=True)
+    cover_image = models.ImageField(upload_to='textbooks/covers/', blank=True, null=True)
     description = models.TextField(blank=True, help_text='Short summary shown on the cards.')
     content = models.TextField(blank=True, default='', help_text='Full note content typed from the admin panel.')
     is_active = models.BooleanField(default=True)
