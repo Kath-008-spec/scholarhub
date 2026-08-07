@@ -47,10 +47,14 @@
             {% for textbook in saved_textbooks %}
               <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card sh-saved-book-card sh-elevated-hover h-100">
-                  <div class="sh-book-cover bg-light p-3 text-center position-relative" style="height: 200px; overflow: hidden;">
-                    <div class="d-flex align-items-center justify-content-center h-100">
-                      <i class="bi bi-journal-text fs-1 text-muted"></i>
-                    </div>
+                  <div class="sh-book-cover bg-light p-0 position-relative" style="height: 200px; overflow: hidden;">
+                    {% if textbook.cover_image %}
+                      <img src="{{ textbook.cover_image.url }}" alt="{{ textbook.title }}" class="img-fluid h-100 w-100" style="object-fit: cover;">
+                    {% else %}
+                      <div class="d-flex align-items-center justify-content-center h-100 p-3">
+                        <i class="bi bi-journal-text fs-1 text-muted"></i>
+                      </div>
+                    {% endif %}
                     <a href="{% url 'bookmark_textbook' textbook.pk %}" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" title="Remove from saved">
                       <i class="bi bi-x"></i>
                     </a>

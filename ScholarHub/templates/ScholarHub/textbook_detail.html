@@ -35,27 +35,42 @@
 <div class="container py-4">
   <div class="card sh-elevated">
     <div class="card-body">
-      <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
-        <div>
-          <h2 class="mb-1">{{ resource.title }}</h2>
-          <p class="text-muted mb-0">{{ resource.author }} • {{ resource.course.title }} • {{ resource.department.name }}</p>
+      <div class="row gy-4">
+        <div class="col-lg-4">
+          <div class="sh-book-cover bg-light p-2 rounded" style="min-height: 300px; overflow: hidden;">
+            {% if resource.cover_image %}
+              <img src="{{ resource.cover_image.url }}" alt="{{ resource.title }} cover" class="img-fluid h-100 w-100" style="object-fit: cover;">
+            {% else %}
+              <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                <i class="bi bi-journal-text fs-1"></i>
+              </div>
+            {% endif %}
+          </div>
         </div>
-        <div class="d-flex gap-2">
-          <a class="btn btn-primary" href="{% url 'download_textbook' resource.pk %}">Download Note</a>
-          <a class="btn btn-outline-secondary" href="{% url 'bookmark_textbook' resource.pk %}">Save for later</a>
+        <div class="col-lg-8">
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+            <div>
+              <h2 class="mb-1">{{ resource.title }}</h2>
+              <p class="text-muted mb-0">{{ resource.author }} • {{ resource.course.title }} • {{ resource.department.name }}</p>
+            </div>
+            <div class="d-flex gap-2">
+              <a class="btn btn-primary" href="{% url 'download_textbook' resource.pk %}">Download Note</a>
+              <a class="btn btn-outline-secondary" href="{% url 'bookmark_textbook' resource.pk %}">Save for later</a>
+            </div>
+          </div>
+
+          {% if resource.description %}
+          <p class="mb-4">{{ resource.description }}</p>
+          {% endif %}
+
+          <div class="note-reader-shell">
+            {% if resource.content %}
+            <div class="note-body">{{ resource.content }}</div>
+            {% else %}
+            <div class="note-empty">No note content has been added for this textbook yet.</div>
+            {% endif %}
+          </div>
         </div>
-      </div>
-
-      {% if resource.description %}
-      <p class="mb-4">{{ resource.description }}</p>
-      {% endif %}
-
-      <div class="note-reader-shell">
-        {% if resource.content %}
-        <div class="note-body">{{ resource.content }}</div>
-        {% else %}
-        <div class="note-empty">No note content has been added for this textbook yet.</div>
-        {% endif %}
       </div>
     </div>
   </div>

@@ -48,6 +48,9 @@
               <div class="col-12 col-md-6 col-lg-4">
                 <div class="card sh-course-card sh-elevated-hover h-100">
                   <div class="card-body">
+                    {% if textbook.cover_image %}
+                      <img src="{{ textbook.cover_image.url }}" alt="{{ textbook.title }}" class="img-fluid rounded mb-3" style="height: 160px; width:100%; object-fit:cover;">
+                    {% endif %}
                     <div class="d-flex justify-content-between align-items-start mb-2">
                       <div>
                         <h6 class="card-title mb-1">{{ textbook.course.code }}</h6>
@@ -98,6 +101,9 @@
               <div class="col-12 col-md-6 col-lg-4">
                 <div class="card sh-course-card sh-elevated-hover h-100">
                   <div class="card-body">
+                    {% if textbook.cover_image %}
+                      <img src="{{ textbook.cover_image.url }}" alt="{{ textbook.title }}" class="img-fluid rounded mb-3" style="height: 160px; width:100%; object-fit:cover;">
+                    {% endif %}
                     <div class="d-flex justify-content-between align-items-start mb-2">
                       <div>
                         <h6 class="card-title mb-1">{{ textbook.course.code }}</h6>
