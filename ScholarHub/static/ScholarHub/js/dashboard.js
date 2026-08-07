@@ -81,3 +81,18 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
 });
+  const sitePreloader = document.getElementById('sitePreloader');
+  if(sitePreloader){
+    window.addEventListener('load', function(){
+      sitePreloader.classList.add('hidden');
+      setTimeout(()=>{ sitePreloader.remove(); }, 300);
+    });
+
+    window.addEventListener('beforeunload', function(){
+      sitePreloader.classList.remove('hidden');
+    });
+
+    document.addEventListener('submit', function(){
+      sitePreloader.classList.remove('hidden');
+    });
+  }
