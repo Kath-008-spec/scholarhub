@@ -1,0 +1,27 @@
+{% extends 'ScholarHub/base.html' %}
+{% load static %}
+
+{% block title %}Error | ScholarHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="card sh-elevated p-4 text-center mx-auto" style="max-width:720px;">
+    <div class="card-body">
+      <div class="mb-3">
+        <span class="badge bg-danger rounded-pill px-3 py-2">Error</span>
+      </div>
+      <h1 class="mb-3">Something went wrong</h1>
+      <p class="lead text-muted mb-4">We couldn't complete your request.</p>
+      {% if error_message %}
+      <div class="alert alert-secondary text-start" role="alert">
+        {{ error_message }}
+      </div>
+      {% endif %}
+      <div class="d-flex justify-content-center gap-3 flex-wrap mt-3">
+        <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+        <a href="{% url 'home' %}" class="btn btn-outline-primary">Return to Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

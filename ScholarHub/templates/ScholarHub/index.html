@@ -11,6 +11,11 @@
     <nav class="navbar">
         <div class="container">
             <a href="/" class="brand"><img src="{% static 'ScholarHub/images/logo-mark.svg' %}" alt="ScholarHub logo"><span class="brand-name">ScholarHub</span></a>
+            <div class="right-actions">
+                <a class="btn btn-link" href="#how-it-works">About</a>
+                <a class="btn btn-link" href="{% url 'login' %}?next={% url 'dashboard' %}">Login</a>
+                <a class="btn btn-primary" href="{% url 'register' %}">Get Started</a>
+            </div>
         </div>
     </nav>
 
@@ -24,15 +29,14 @@
         {% endif %}
 
         <div class="container hero-grid hero-content">
-            <div>
+                <div>
                 <h1>Learn smarter with the resources you actually need.</h1>
                 <p><strong>ScholarHub</strong> is a digital learning platform that helps university students access textbooks and past examination questions based on their faculty, department, level, and courses. It provides a simple, organized library where students can easily search, read, and download academic resources to support their studies and exam preparation.</p>
-                <div class="hero-actions">
-                    <a class="btn btn-primary" href="{% url 'register' %}">Get Started</a>
-                    <a class="btn btn-primary" href="{% url 'login' %}?next={% url 'dashboard' %}">Login</a>
-                </div>
             </div>
             <div class="hero-panel">
+                {% if hero_panel_image %}
+                <div class="hero-panel-image" style="background-image: url('{{ hero_panel_image.image.url }}');" aria-label="{{ hero_panel_image.caption }}"></div>
+                {% else %}
                 <div class="hero-card">
                     <h3>Ready to access the right resources?</h3>
                     <p>Use ScholarHub to browse textbooks, past exams, and study guides for your faculty, department, and courses.</p>
@@ -41,8 +45,8 @@
                         <li>Downloadable past exam papers</li>
                         <li>Organized by course and level</li>
                     </ul>
-                    <a class="btn btn-secondary" href="{% url 'register' %}">Get Started</a>
                 </div>
+                {% endif %}
             </div>
         </div>
     </section>
@@ -60,25 +64,33 @@
 
     <!-- Removed featured courses, popular textbooks, benefits, and testimonials per request -->
 
-    <section class="container" id="get-started">
-        <div class="cta">
-            <h2>Ready to study smarter?</h2>
-            <p>Join ScholarHub and discover a cleaner, faster way to learn.</p>
-            <a class="btn btn-secondary" href="/">Get Started</a>
+    <section class="container features-grid" id="how-it-works">
+        <div class="feature-card" id="feature-curated">
+            <h3>Curated academic resources</h3>
+            <p>Find textbooks and study materials selected for your faculty, department, level, and courses in one easy library.</p>
+        </div>
+        <div class="feature-card" id="feature-downloads">
+            <h3>Downloadable past exam papers</h3>
+            <p>Access previous exam papers and practice questions with fast downloads so you can review and prepare offline.</p>
+        </div>
+        <div class="feature-card" id="feature-how">
+            <h3>How ScholarHub works</h3>
+            <p>ScholarHub connects students to resources by matching uploaded textbooks and past questions with their academic profile and course selections.</p>
+        </div>
+        <div class="feature-card" id="feature-why">
+            <h3>Why ScholarHub</h3>
+            <p>A cleaner, faster study experience with organized academic content, simple navigation, and useful downloads for exam prep.</p>
         </div>
     </section>
 
     <footer>
         <div class="container">
             <p><img src="{% static 'ScholarHub/images/logo.svg' %}" alt="logo" class="footer-logo">© 2026 ScholarHub. All rights reserved.</p>
-
         </div>
     </footer>
 
     <style>
         .footer-logo { height: 22px; width: auto; vertical-align: middle; margin-right: 8px; }
     </style>
-        </div>
-    </footer>
 </body>
 </html>

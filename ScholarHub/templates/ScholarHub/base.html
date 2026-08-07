@@ -94,15 +94,18 @@
       <header class="sh-topbar d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-3">
           <button id="shToggleSidebar" class="btn btn-link sh-hamburger d-lg-none"><i class="bi bi-list"></i></button>
-          <form class="sh-search-form" id="shSearchForm">
+        </div>
+
+        <div class="d-flex align-items-center gap-3 me-2">
+          <form class="d-flex align-items-center sh-navbar-search" method="get" action="{% if request.resolver_match.url_name == 'past_questions' %}{% url 'past_questions' %}{% else %}{% url 'textbooks' %}{% endif %}">
             <div class="input-group">
-              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-              <input id="shSearch" class="form-control sh-search-input border-start-0" placeholder="Search textbooks, courses, or past questions..." aria-label="Search">
+              <span class="input-group-text border-end-0"><i class="bi bi-search"></i></span>
+              <input name="q" class="form-control border-start-0" placeholder="{% if request.resolver_match.url_name == 'past_questions' %}Search past questions...{% else %}Search textbooks...{% endif %}" value="{{ request.GET.q|default:'' }}" aria-label="Search">
             </div>
           </form>
         </div>
 
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3 ms-auto">
           <div class="sh-notification dropdown">
             <button class="btn btn-link position-relative" id="shNotifyBtn"><i class="bi bi-bell fs-5"></i><span class="badge sh-badge">3</span></button>
             <div class="dropdown-menu dropdown-menu-end sh-notify-menu" aria-labelledby="shNotifyBtn">
@@ -119,7 +122,11 @@
 
           <div class="sh-profile dropdown">
             <button class="btn btn-link d-flex align-items-center gap-2" id="shProfileBtn">
-              <img src="https://via.placeholder.com/40" alt="avatar" class="rounded-circle sh-avatar">
+              {% if profile and profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="avatar" class="rounded-circle sh-avatar">
+              {% else %}
+                <img src="{% static 'ScholarHub/images/default-avatar.svg' %}" alt="avatar" class="rounded-circle sh-avatar">
+              {% endif %}
               <div class="d-none d-md-block text-start">
                 <div class="fw-bold sh-username">{{ user.get_full_name|default:user.username }}</div>
                 <div class="small text-muted sh-dept">{{ profile.department.name|default:'Department' }}</div>

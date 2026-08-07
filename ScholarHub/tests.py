@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
@@ -122,6 +123,74 @@ class QuizAttemptTests(TestCase):
         self.assertEqual(attempt.score, 1)
         self.assertEqual(attempt.percentage, 100.0)
         self.assertTrue(StudentAnswer.objects.filter(quiz_attempt=attempt, question=question).exists())
+
+
+class ProfileTemplateTests(TestCase):
+    def test_profile_photo_appears_in_shared_header(self):
+        user = User.objects.create_user(username='avataruser@example.com', email='avataruser@example.com', password='secret123')
+        profile = StudentProfile.objects.create(user=user)
+        profile.profile_picture.save(
+            'avatar.jpg',
+            SimpleUploadedFile('avatar.jpg', b'fake-image-bytes', content_type='image/jpeg'),
+            save=True,
+        )
+
+        self.client.force_login(user)
+        response = self.client.get(reverse('profile'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, profile.profile_picture.url)
+        self.assertNotContains(response, 'via.placeholder.com/40')
+
+    def test_past_questions_page_honors_search_query(self):
+        user = User.objects.create_user(username='searchuser@example.com', email='searchuser@example.com', password='secret123')
+        profile = StudentProfile.objects.create(user=user)
+        faculty = Faculty.objects.create(name='Faculty of Engineering')
+        department = Department.objects.create(name='Mechanical', faculty=faculty)
+        calculus_course = Course.objects.create(
+            code='MEC201',
+            title='Engineering Mathematics',
+            department=department,
+            level='200',
+            semester='First Semester',
+        )
+        algebra_course = Course.objects.create(
+            code='MEC202',
+            title='Engineering Mechanics',
+            department=department,
+            level='200',
+            semester='First Semester',
+        )
+        PastQuestion.objects.create(
+            course=calculus_course,
+            faculty=faculty,
+            department=department,
+            level='200',
+            semester='First Semester',
+            academic_session='2023/2024',
+            description='Calculus exam paper',
+        )
+        PastQuestion.objects.create(
+            course=algebra_course,
+            faculty=faculty,
+            department=department,
+            level='200',
+            semester='First Semester',
+            academic_session='2023/2024',
+            description='Algebra exam paper',
+        )
+        profile.faculty = faculty
+        profile.department = department
+        profile.level = '200'
+        profile.semester = 'First Semester'
+        profile.save()
+
+        self.client.force_login(user)
+        response = self.client.get(reverse('past_questions'), {'q': 'calculus'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Calculus exam paper')
+        self.assertNotContains(response, 'Algebra exam paper')
 
 
 class ProfileFallbackTests(TestCase):

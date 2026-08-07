@@ -99,7 +99,7 @@ body.sh-dashboard{
 .sh-rightside .card{ border-radius:14px; }
 .sh-rightside-sticky{ top:90px; }
 
-.sh-hero-illustration-img{ max-width:260px; }
+.sh-hero-illustration-img{ max-width:160px; }
 .sh-progress{ height:8px; border-radius:10px; overflow:hidden; background: var(--surface); }
 .sh-progress .progress-bar{ transition: width .4s ease; background: var(--primary); }
 

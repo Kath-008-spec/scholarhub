@@ -111,10 +111,7 @@
                 <div class="col-lg-7 p-4">
                   <h2 class="mb-2">Welcome back, {{ user.first_name|default:user.username }} 👋</h2>
                   <p class="lead text-muted">You are viewing resources for {{ profile.department.name|default:'your department' }} at {{ profile.level }} level.</p>
-                  <div class="mt-3">
-                    <a href="#" class="btn btn-outline-light btn-rounded me-2">My Courses</a>
-                    <a href="#" class="btn btn-light btn-rounded">Browse Textbooks</a>
-                  </div>
+                  <!-- CTAs removed as requested -->
                 </div>
                 <div class="col-lg-5 sh-hero-illustration p-3 text-center">
                   <!-- Illustration placeholder -->
@@ -255,18 +252,7 @@
                 </div>
               </div>
 
-              <div class="card mb-3 sh-elevated-hover">
-                <div class="card-body">
-                  <h6 class="mb-2">My Courses</h6>
-                  <div class="d-flex flex-column gap-2">
-                    {% for course in current_courses %}
-                    <span class="btn btn-sm btn-outline-primary text-start">{{ course.title }}</span>
-                    {% empty %}
-                    <span class="text-muted">No courses assigned yet.</span>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
+            
 
               <div class="card mb-3 sh-elevated-hover">
                 <div class="card-body">

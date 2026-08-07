@@ -27,6 +27,7 @@ urlpatterns = [
     path('resources/textbooks/<int:pk>/', views.textbook_detail, name='textbook_detail'),
     path('resources/textbooks/<int:pk>/download/', views.download_textbook, name='download_textbook'),
     path('resources/past-questions/<int:pk>/', views.past_question_detail, name='past_question_detail'),
+    path('resources/past-questions/<int:pk>/view-pdf/', views.view_past_question_pdf, name='view_past_question_pdf'),
     path('resources/past-questions/<int:pk>/download/', views.download_past_question, name='download_past_question'),
 ]
 

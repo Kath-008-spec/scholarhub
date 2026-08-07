@@ -11,12 +11,6 @@
         <h2 class="mb-1">Textbooks</h2>
         <p class="text-muted">Browse textbooks for your courses</p>
       </div>
-      <div>
-        <div class="input-group" style="width: 300px;">
-          <input type="text" class="form-control" placeholder="Search textbooks..." id="textbookSearch">
-          <button class="btn btn-outline-primary" type="button"><i class="bi bi-search"></i></button>
-        </div>
-      </div>
     </div>
 
     {% if messages %}
@@ -27,45 +21,6 @@
         </div>
       {% endfor %}
     {% endif %}
-
-    <!-- Filter Section -->
-    <div class="card sh-elevated mb-4 sh-filter-card">
-      <div class="card-body">
-        <div class="row g-3">
-          <div class="col-md-3">
-            <label class="form-label"><i class="bi bi-funnel"></i> Department</label>
-            <select class="form-select form-select-sm">
-              <option>All Departments</option>
-              <option>Computer Science</option>
-              <option>Physics</option>
-              <option>Mathematics</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label"><i class="bi bi-bookmark"></i> Level</label>
-            <select class="form-select form-select-sm">
-              <option>All Levels</option>
-              <option>100 Level</option>
-              <option>200 Level</option>
-              <option>300 Level</option>
-              <option>400 Level</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label"><i class="bi bi-calendar"></i> Semester</label>
-            <select class="form-select form-select-sm">
-              <option>All Semesters</option>
-              <option>First Semester</option>
-              <option>Second Semester</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">&nbsp;</label>
-            <button class="btn btn-outline-secondary w-100 btn-sm">Reset Filters</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Textbooks Grid -->
     {% if all_textbooks %}

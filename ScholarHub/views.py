@@ -1,8 +1,13 @@
 import json
 import random
+from io import BytesIO
+
+from docx import Document
+from docx.shared import Pt, RGBColor
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,6 +20,7 @@ from .models import (
     Course,
     Department,
     LandingBackground,
+    LandingPanelImage,
     PastQuestion,
     Question,
     QuizAttempt,
@@ -28,8 +34,10 @@ def home(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     background_images = LandingBackground.objects.filter(is_active=True)
+    hero_panel_image = LandingPanelImage.objects.filter(is_active=True).order_by('order', '-created_at').first()
     return render(request, 'ScholarHub/index.html', {
         'background_images': background_images,
+        'hero_panel_image': hero_panel_image,
     })
 
 
@@ -160,6 +168,15 @@ def past_questions_view(request):
 
     all_past_questions = (auto_assigned_pqs | course_pqs | elective_pqs).distinct().order_by('-created_at')
 
+    q = request.GET.get('q', '').strip()
+    if q:
+        all_past_questions = all_past_questions.filter(
+            Q(course__code__icontains=q) |
+            Q(course__title__icontains=q) |
+            Q(description__icontains=q) |
+            Q(department__name__icontains=q)
+        )
+
     context = {
         'profile': profile,
         'all_past_questions': all_past_questions,
@@ -222,7 +239,7 @@ def textbook_detail(request, pk):
     textbook = get_object_or_404(Textbook, pk=pk)
     profile = get_or_create_student_profile(request.user)
     if not resource_is_visible(profile, textbook):
-        raise PermissionError('You do not have access to this resource.')
+        raise PermissionDenied('You do not have access to this resource.')
     return render(request, 'ScholarHub/textbook_detail.html', {'resource': textbook, 'profile': profile})
 
 
@@ -231,7 +248,7 @@ def past_question_detail(request, pk):
     question = get_object_or_404(PastQuestion, pk=pk)
     profile = get_or_create_student_profile(request.user)
     if not resource_is_visible(profile, question):
-        raise PermissionError('You do not have access to this resource.')
+        raise PermissionDenied('You do not have access to this resource.')
     return render(request, 'ScholarHub/past_question_detail.html', {'resource': question, 'profile': profile})
 
 
@@ -240,20 +257,67 @@ def download_textbook(request, pk):
     textbook = get_object_or_404(Textbook, pk=pk)
     profile = get_or_create_student_profile(request.user)
     if not resource_is_visible(profile, textbook):
-        raise PermissionError('You do not have access to this resource.')
+        raise PermissionDenied('You do not have access to this resource.')
     if not textbook.content:
         raise FileNotFoundError('No note content attached to this textbook.')
-    response = HttpResponse(textbook.content, content_type='text/plain; charset=utf-8')
-    response['Content-Disposition'] = f'attachment; filename="{textbook.title.replace(" ", "_")}.txt"'
+    
+    # Create a new Document
+    doc = Document()
+    
+    # Add title
+    title = doc.add_heading(textbook.title, 0)
+    title.runs[0].font.color.rgb = RGBColor(15, 23, 42)  # #0F172A
+    
+    # Add metadata
+    meta = doc.add_paragraph()
+    meta.add_run('Course: ').bold = True
+    meta.add_run(f'{textbook.course.code} - {textbook.course.title}')
+    
+    meta = doc.add_paragraph()
+    meta.add_run('Author: ').bold = True
+    meta.add_run(textbook.author or 'Unknown')
+    
+    meta = doc.add_paragraph()
+    meta.add_run('Department: ').bold = True
+    meta.add_run(textbook.department.name)
+    
+    meta = doc.add_paragraph()
+    meta.add_run('Level: ').bold = True
+    meta.add_run(textbook.level)
+    
+    # Add content
+    doc.add_heading('Content', level=1)
+    doc.add_paragraph(textbook.content)
+    
+    # Save to BytesIO
+    doc_io = BytesIO()
+    doc.save(doc_io)
+    doc_io.seek(0)
+    
+    response = HttpResponse(doc_io.getvalue(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    response['Content-Disposition'] = f'attachment; filename="{textbook.title.replace(" ", "_")}.docx"'
     return response
 
 
 @login_required
+def view_past_question_pdf(request, pk):
+    """View PDF inline in an iframe with SAMEORIGIN framing permission."""
+    question = get_object_or_404(PastQuestion, pk=pk)
+    profile = get_or_create_student_profile(request.user)
+    if not resource_is_visible(profile, question):
+        raise PermissionDenied('You do not have access to this resource.')
+    if not question.pdf:
+        raise FileNotFoundError('No PDF attached to this past question.')
+    response = FileResponse(question.pdf.open('rb'), content_type='application/pdf')
+    response['X-Frame-Options'] = 'SAMEORIGIN'
+    return response
+
+
 def download_past_question(request, pk):
     question = get_object_or_404(PastQuestion, pk=pk)
     profile = get_or_create_student_profile(request.user)
     if not resource_is_visible(profile, question):
-        raise PermissionError('You do not have access to this resource.')
+        raise PermissionDenied('You do not have access to this resource.')
     if not question.pdf:
         raise FileNotFoundError('No PDF attached to this past question.')
     response = FileResponse(question.pdf.open('rb'))
@@ -368,7 +432,7 @@ def start_quiz(request, course_id):
     profile = get_or_create_student_profile(request.user)
     course = get_object_or_404(Course, pk=course_id)
     if not resource_is_visible(profile, course):
-        raise PermissionError('You do not have access to this course.')
+        raise PermissionDenied('You do not have access to this course.')
 
     questions = list(Question.objects.filter(course=course).order_by('?'))
     if not questions:
@@ -388,7 +452,7 @@ def quiz_question_view(request, course_id):
     profile = get_or_create_student_profile(request.user)
     course = get_object_or_404(Course, pk=course_id)
     if not resource_is_visible(profile, course):
-        raise PermissionError('You do not have access to this course.')
+        raise PermissionDenied('You do not have access to this course.')
 
     question_ids = request.session.get('quiz_question_ids', [])
     if not question_ids:
@@ -429,7 +493,7 @@ def save_quiz_answer(request, course_id):
     profile = get_or_create_student_profile(request.user)
     course = get_object_or_404(Course, pk=course_id)
     if not resource_is_visible(profile, course):
-        raise PermissionError('You do not have access to this course.')
+        raise PermissionDenied('You do not have access to this course.')
 
     if request.method == 'POST':
         question_id = request.POST.get('question_id')
@@ -446,7 +510,7 @@ def submit_quiz(request, course_id):
     profile = get_or_create_student_profile(request.user)
     course = get_object_or_404(Course, pk=course_id)
     if not resource_is_visible(profile, course):
-        raise PermissionError('You do not have access to this course.')
+        raise PermissionDenied('You do not have access to this course.')
 
     question_ids = request.session.get('quiz_question_ids', [])
     answers = request.session.get('quiz_answers', {})
@@ -533,3 +597,16 @@ def resource_is_visible(profile, resource):
 
     course_ids = set(profile.courses.values_list('id', flat=True)) | set(profile.elective_courses.values_list('id', flat=True))
     return getattr(resource, 'course_id', None) in course_ids
+
+
+def custom_permission_denied_view(request, exception=None):
+    from django.shortcuts import render
+    return render(request, 'ScholarHub/error.html', {'error_message': str(exception) if exception else 'Permission denied.'}, status=403)
+
+def custom_page_not_found_view(request, exception=None):
+    from django.shortcuts import render
+    return render(request, 'ScholarHub/error.html', {'error_message': 'Page not found.'}, status=404)
+
+def custom_server_error_view(request):
+    from django.shortcuts import render
+    return render(request, 'ScholarHub/error.html', {'error_message': 'An unexpected error occurred. Please try again later.'}, status=500)

@@ -118,20 +118,42 @@ body {
   color: var(--text-primary);
 }
 
-.sh-search-form .input-group-text {
-  background-color: var(--input-bg) !important;
-  border-color: var(--input-border) !important;
-  color: var(--text-primary);
+.sh-navbar-search .input-group-text,
+.sh-navbar-search .form-control {
+  background-color: #0F172A !important;
+  border-color: #0F172A !important;
+  color: #ffffff !important;
 }
 
-.sh-search-input {
-  background-color: var(--input-bg) !important;
-  border-color: var(--input-border) !important;
-  color: var(--text-primary);
+.sh-navbar-search .input-group-text {
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+  padding-left: 0.95rem;
+  padding-right: 0.35rem;
 }
 
-.sh-search-input::placeholder {
-  color: var(--input-placeholder);
+.sh-navbar-search .form-control {
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+  padding-left: 0.25rem;
+  padding-right: 1rem;
+  box-shadow: none;
+}
+
+.sh-navbar-search .form-control::placeholder {
+  color: rgba(255,255,255,0.72);
+}
+
+.sh-notification .btn,
+.sh-profile .btn,
+.sh-username,
+.sh-dept {
+  color: #0F172A !important;
+}
+
+.sh-profile .btn:hover,
+.sh-notification .btn:hover {
+  color: #0F172A !important;
 }
 
 /* Forms */

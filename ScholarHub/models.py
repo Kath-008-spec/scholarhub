@@ -222,3 +222,17 @@ class LandingBackground(models.Model):
         return self.caption or f'Background {self.pk}'
 
 
+class LandingPanelImage(models.Model):
+    image = models.ImageField(upload_to='landing_panels/')
+    caption = models.CharField(max_length=180, blank=True)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('order', '-created_at')
+
+    def __str__(self):
+        return self.caption or f'Panel image {self.pk}'
+
+

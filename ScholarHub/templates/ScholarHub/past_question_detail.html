@@ -1,68 +1,18 @@
 {% extends 'ScholarHub/base.html' %}
+{% load static %}
 {% block title %}{{ resource.course.title }} Past Questions | ScholarHub{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'ScholarHub/css/site.css' %}">
-<link rel="stylesheet" href="{% static 'ScholarHub/css/theme.css' %}">
-<link rel="stylesheet" href="{% static 'ScholarHub/css/dashboard.css' %}">
+<link rel="stylesheet" href="/static/ScholarHub/css/site.css">
+<link rel="stylesheet" href="/static/ScholarHub/css/theme.css">
+<link rel="stylesheet" href="/static/ScholarHub/css/dashboard.css">
 <style>
   .pdf-reader-shell {
     border: 1px solid var(--border);
     border-radius: 0.85rem;
     background: var(--surface-strong);
     padding: 1rem;
-  }
-  .pdf-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.9rem;
-  }
-  .pdf-toolbar .btn-group .btn {
-    min-width: 42px;
-  }
-  .pdf-canvas-wrap {
-    text-align: center;
-    min-height: 420px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--surface-strong) 0%, var(--surface) 100%);
-    border-radius: 0.75rem;
-    border: 1px solid var(--border);
-    padding: 1rem;
-  }
-  .pdf-canvas-wrap canvas {
-    max-width: 100%;
-    height: auto;
-    box-shadow: 0 0.35rem 1rem rgba(0,0,0,0.14);
-    background: var(--white);
-  }
-  .pdf-status {
-    margin-top: 0.75rem;
-    font-size: 0.9rem;
-    color: #5b6472;
-  }
-  .pdf-spinner {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .pdf-spinner .spinner-border {
-    width: 1rem;
-    height: 1rem;
-  }
-  @media (max-width: 768px) {
-    .pdf-toolbar {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .pdf-toolbar > div {
-      width: 100%;
-      justify-content: center;
-    }
+    overflow: hidden;
   }
 </style>
 {% endblock %}
@@ -86,31 +36,13 @@
 
       {% if resource.pdf %}
       <div class="pdf-reader-shell">
-        <div class="pdf-toolbar">
-          <div class="d-flex gap-2 align-items-center flex-wrap">
-            <div class="small text-muted">Page <span id="pdfPageNum">1</span> of <span id="pdfPageCount">-</span></div>
-            <div class="btn-group btn-group-sm">
-              <button class="btn btn-outline-secondary" type="button" id="pdfPrev">←</button>
-              <button class="btn btn-outline-secondary" type="button" id="pdfNext">→</button>
-            </div>
-          </div>
-          <div class="d-flex gap-2 align-items-center flex-wrap">
-            <div class="btn-group btn-group-sm">
-              <button class="btn btn-outline-secondary" type="button" id="pdfZoomOut">−</button>
-              <button class="btn btn-outline-secondary" type="button" id="pdfZoomIn">+</button>
-            </div>
-            <button class="btn btn-outline-secondary btn-sm" type="button" id="pdfFitWidth">Fit Width</button>
-            <button class="btn btn-outline-secondary btn-sm" type="button" id="pdfFullscreen">Fullscreen</button>
-          </div>
-        </div>
-        <div class="pdf-canvas-wrap">
-          <canvas id="pdfCanvas"></canvas>
-        </div>
-        <div id="pdfStatus" class="pdf-status">
-          <span class="pdf-spinner"><span class="spinner-border spinner-border-sm"></span> Loading PDF…</span>
-        </div>
+        <iframe
+          src="{% url 'view_past_question_pdf' resource.pk %}"
+          style="width: 100%; height: 650px; border: none; border-radius: 0.75rem;"
+          title="PDF Viewer"
+        ></iframe>
+        <p class="small text-muted mt-3">If the PDF doesn't display above, <a href="{% url 'download_past_question' resource.pk %}" class="btn btn-sm btn-primary mt-2">download the file</a>.</p>
       </div>
-      <p class="small text-muted mt-3">The PDF renders directly inside this page. Use the toolbar to navigate, zoom, or download the file.</p>
       {% else %}
       <div class="alert alert-warning mb-0">No PDF file is attached yet.</div>
       {% endif %}
@@ -120,130 +52,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const canvas = document.getElementById('pdfCanvas');
-    if (!canvas) return;
-
-    const pdfUrl = '{{ resource.pdf.url|escapejs }}';
-    const pageNumEl = document.getElementById('pdfPageNum');
-    const pageCountEl = document.getElementById('pdfPageCount');
-    const statusEl = document.getElementById('pdfStatus');
-    const prevBtn = document.getElementById('pdfPrev');
-    const nextBtn = document.getElementById('pdfNext');
-    const zoomOutBtn = document.getElementById('pdfZoomOut');
-    const zoomInBtn = document.getElementById('pdfZoomIn');
-    const fitWidthBtn = document.getElementById('pdfFitWidth');
-    const fullscreenBtn = document.getElementById('pdfFullscreen');
-
-    let pdfDoc = null;
-    let pageNum = 1;
-    let currentScale = 1.15;
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js';
-
-    function updateStatus(message) {
-      statusEl.innerHTML = message;
-    }
-
-    function renderPage(num) {
-      if (!pdfDoc) return;
-      updateStatus('<span class="pdf-spinner"><span class="spinner-border spinner-border-sm"></span> Rendering page ' + num + '…</span>');
-      pdfDoc.getPage(num).then(function (page) {
-        const containerWidth = canvas.parentElement.clientWidth - 40;
-        const baseViewport = page.getViewport({ scale: 1 });
-        const widthScale = containerWidth / baseViewport.width;
-        const safeScale = Math.min(currentScale, Math.max(0.75, widthScale));
-        const viewport = page.getViewport({ scale: safeScale });
-
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const context = canvas.getContext('2d');
-        const renderContext = { canvasContext: context, viewport: viewport };
-
-        page.render(renderContext).promise.then(function () {
-          pageNumEl.textContent = num;
-          updateStatus('Page ' + num + ' loaded.');
-        }).catch(function (err) {
-          updateStatus('Unable to render page ' + num + ': ' + err.message);
-        });
-      }).catch(function (err) {
-        updateStatus('Unable to open page ' + num + ': ' + err.message);
-      });
-    }
-
-    function fitWidth() {
-      if (!pdfDoc) return;
-      const containerWidth = canvas.parentElement.clientWidth - 40;
-      pdfDoc.getPage(pageNum).then(function (page) {
-        const baseViewport = page.getViewport({ scale: 1 });
-        currentScale = Math.max(0.75, Math.min(2.0, containerWidth / baseViewport.width));
-        renderPage(pageNum);
-      });
-    }
-
-    pdfjsLib.getDocument(pdfUrl).promise.then(function (pdf) {
-      pdfDoc = pdf;
-      pageCountEl.textContent = pdf.numPages;
-      renderPage(pageNum);
-    }).catch(function (err) {
-      updateStatus('Unable to load the PDF: ' + err.message);
-    });
-
-    prevBtn.addEventListener('click', function () {
-      if (pdfDoc && pageNum > 1) {
-        pageNum -= 1;
-        renderPage(pageNum);
-      }
-    });
-
-    nextBtn.addEventListener('click', function () {
-      if (pdfDoc && pageNum < pdfDoc.numPages) {
-        pageNum += 1;
-        renderPage(pageNum);
-      }
-    });
-
-    zoomOutBtn.addEventListener('click', function () {
-      if (currentScale > 0.75) {
-        currentScale = Math.max(0.75, currentScale - 0.15);
-        renderPage(pageNum);
-      }
-    });
-
-    zoomInBtn.addEventListener('click', function () {
-      if (currentScale < 2.5) {
-        currentScale = Math.min(2.5, currentScale + 0.15);
-        renderPage(pageNum);
-      }
-    });
-
-    fitWidthBtn.addEventListener('click', fitWidth);
-
-    fullscreenBtn.addEventListener('click', function () {
-      const shell = document.querySelector('.pdf-reader-shell');
-      if (!document.fullscreenElement) {
-        shell.requestFullscreen().catch(function () {});
-      } else {
-        document.exitFullscreen();
-      }
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'ArrowRight') {
-        if (pdfDoc && pageNum < pdfDoc.numPages) {
-          pageNum += 1;
-          renderPage(pageNum);
-        }
-      }
-      if (event.key === 'ArrowLeft') {
-        if (pdfDoc && pageNum > 1) {
-          pageNum -= 1;
-          renderPage(pageNum);
-        }
-      }
-    });
-  });
-</script>
+<!-- No extra JavaScript needed - using native iframe PDF viewer -->
 {% endblock %}

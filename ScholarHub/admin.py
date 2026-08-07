@@ -6,6 +6,7 @@ from .models import (
     Department,
     Faculty,
     LandingBackground,
+    LandingPanelImage,
     PastQuestion,
     Question,
     QuizAttempt,
@@ -57,6 +58,10 @@ class PastQuestionAdmin(admin.ModelAdmin):
     list_display = ('course', 'faculty', 'department', 'level', 'semester', 'academic_session')
     list_filter = ('faculty', 'department', 'level', 'semester')
     search_fields = ('course__code', 'academic_session')
+    fieldsets = (
+        ('Basic details', {'fields': ('course', 'faculty', 'department', 'level', 'semester', 'academic_session', 'description')}),
+        ('PDF Upload', {'fields': ('pdf',), 'description': 'Upload the past question PDF file here.'}),
+    )
 
 
 @admin.register(Question)
@@ -68,6 +73,14 @@ class QuestionAdmin(admin.ModelAdmin):
 
 @admin.register(LandingBackground)
 class LandingBackgroundAdmin(admin.ModelAdmin):
+    list_display = ('caption', 'is_active', 'order', 'created_at')
+    list_editable = ('is_active', 'order')
+    list_filter = ('is_active',)
+    search_fields = ('caption',)
+
+
+@admin.register(LandingPanelImage)
+class LandingPanelImageAdmin(admin.ModelAdmin):
     list_display = ('caption', 'is_active', 'order', 'created_at')
     list_editable = ('is_active', 'order')
     list_filter = ('is_active',)
