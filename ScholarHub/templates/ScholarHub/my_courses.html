@@ -80,11 +80,16 @@
     <!-- Elective Courses -->
     <div class="card sh-elevated">
       <div class="card-header bg-light">
-        <div class="d-flex justify-content-between align-items-center">
-          <h5 class="mb-0"><i class="bi bi-star"></i> Your Elective Courses</h5>
-          <span class="badge bg-warning">{{ elective_textbooks|length }}</span>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h5 class="mb-0"><i class="bi bi-star"></i> Your Elective Courses</h5>
+            <small class="text-muted">Courses you manually selected as electives</small>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-warning">{{ elective_textbooks|length }}</span>
+            <a href="{% url 'profile' %}#elective-courses-section" class="btn btn-sm btn-primary">Register</a>
+          </div>
         </div>
-        <small class="text-muted">Courses you manually selected as electives</small>
       </div>
       <div class="card-body">
         {% if elective_textbooks %}
